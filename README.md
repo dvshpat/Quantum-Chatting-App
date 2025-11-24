@@ -1,81 +1,109 @@
-# Post-Quantum Secure Chat App
+# Vajra: A Post-Quantum Secure Chat Application
 
-Ever wondered what happens to your "secure" messages when quantum computers become powerful enough to break today's encryption? This project tackles that exact problem. It's a real-time chat application built from the ground up to be secure not just today, but in the post-quantum future.
+▶️ [Watch the demo on YouTube](https://youtu.be/3Gy8Ksx9pXc?si=c-tX38NdLCcr03Mg)
 
-At its heart, this app swaps out vulnerable cryptographic methods for powerful, NIST-standardized algorithms that can withstand attacks from both classical and quantum computers. It's a practical demonstration that we can build quantum-safe tools without sacrificing the snappy, real-time experience we expect from modern messaging apps.
 
-***
 
-### Key Features 🔐
 
-* **Quantum-Resistant Security**: Uses **CRYSTALS-Kyber** for secure key exchange and **CRYSTALS-Dilithium** for digital signatures to authenticate messages.
-* **End-to-End Encryption**: Your messages are encrypted on your device and can only be decrypted by the person you're talking to. The server only sees encrypted gibberish.
-* **Real-Time Chat**: Enjoy instant messaging, see who's online, and access your chat history, all powered by a low-latency WebSocket connection.
-* **Strong Authentication**: Security is layered with email-based OTP verification and robust session management using JWTs.
+This is a real-time, end-to-end encrypted chat application built to be secure not just today, but in the post-quantum future. It addresses the threat of quantum computers breaking current encryption standards by implementing NIST-standardized quantum-resistant cryptographic algorithms.
 
-***
+The application demonstrates that it's possible to build quantum-safe tools without sacrificing the snappy, real-time experience of modern messaging apps.
 
-### The Tech Stack 💻
+## Key Features
 
-This application is built with a modern and powerful set of tools:
+*   **Quantum-Resistant Security**: Uses **CRYSTALS-Kyber** for Key Encapsulation Mechanism (KEM) to securely establish shared secrets, and **CRYSTALS-Dilithium** for digital signatures to authenticate every message.
+*   **Passwordless Authentication**: Implements modern, secure, and phishing-resistant login using **WebAuthn**, allowing users to authenticate with biometrics or hardware security keys.
+*   **End-to-End Encryption (E2EE)**: Messages are encrypted on the sender's device and can only be decrypted by the intended recipient. The server has zero knowledge of the message content.
+*   **Real-Time Chat**: Built with WebSockets for instant messaging, online status indicators, and access to chat history.
+*   **Secure Session Management**: Employs JSON Web Tokens (JWTs) stored in secure, HTTP-only cookies for robust session handling.
 
-The frontend is a responsive **React.js** single-page application, making the user experience smooth and interactive. For the backend, we used **FastAPI**, a high-performance Python framework, to handle API requests and manage WebSocket connections for real-time communication. All data, including user profiles and encrypted messages, is stored in a flexible **MongoDB** NoSQL database.
+## The Tech Stack
 
-The cryptographic magic happens thanks to the `noble/post-quantum` library, which provides the JavaScript implementation of Kyber and Dilithium.
+*   **Frontend**: A responsive **React.js** Single-Page Application built with **Vite**.
+*   **Backend**: A high-performance **FastAPI** (Python) server handling API requests and WebSocket connections.
+*   **Database**: **MongoDB** for storing user profiles, credentials, and encrypted message history.
+*   **Cryptography**: The `@noble/post-quantum` library for JavaScript implementations of CRYSTALS-Kyber and CRYSTALS-Dilithium.
 
-***
+## How It Works: The Secure Flow
 
-### How It Works: The Secure Flow
+The app's architecture is designed with security and privacy as the top priority.
 
-The app's architecture is designed with security and privacy as the top priority. Everything is built to ensure that only you and the person you are chatting with can read your messages.
-
-1.  **Registration & Key Generation**: When you sign up, your browser generates a unique set of post-quantum keys (Kyber and Dilithium). Your private keys never leave your device; they are stored securely in your browser's local storage. Only your public keys are uploaded to the server for others to find you.
+1.  **Registration & Key Generation**: When a user registers, their browser generates three sets of keys:
+    *   A **WebAuthn** credential for passwordless login.
+    *   A **CRYSTALS-Kyber** key pair for encryption.
+    *   A **CRYSTALS-Dilithium** key pair for digital signatures.
+    
+    All private keys are stored securely in the browser's local storage and never leave the device. Only the public keys are sent to the server.
 
 2.  **Sending a Message**:
-    * First, your app fetches the recipient's **Kyber public key** from the server.
-    * It then uses this key to create a unique shared secret that only you and the recipient can know. This process is called key encapsulation.
-    * Your message is encrypted using a strong symmetric cipher (**AES-GCM**) with that shared secret.
-    * Finally, you sign the message with your **Dilithium private key** to prove it came from you.
+    *   The sender's app fetches the recipient's **Kyber public key** from the server.
+    *   It uses this key to perform a Key Encapsulation, generating a unique shared secret and a ciphertext.
+    *   The message is encrypted using **AES-GCM** with the shared secret.
+    *   The original plaintext message is signed with the sender's **Dilithium private key**.
+    *   The final payload (Kyber ciphertext, AES-encrypted message, IV, and Dilithium signature) is sent to the server.
 
 3.  **Receiving a Message**:
-    * The recipient's app uses their **Kyber private key** to regenerate the exact same shared secret.
-    * They use this secret to decrypt the message with **AES-GCM**.
-    * Lastly, they use your **Dilithium public key** to verify your signature, ensuring the message is authentic and wasn't tampered with.
+    *   The recipient's app uses its **Kyber private key** and the received Kyber ciphertext to decapsulate and regenerate the exact same shared secret.
+    *   It uses this secret to decrypt the message with **AES-GCM**.
+    *   Finally, it fetches the sender's **Dilithium public key** from the server and uses it to verify the signature against the decrypted message, ensuring authenticity and integrity.
 
-This entire cryptographic process happens seamlessly on the client-side, preserving a zero-knowledge environment where the server remains completely unaware of the message content.
+This entire cryptographic process happens seamlessly on the client side, maintaining a zero-knowledge environment where the server cannot decipher the content of any communication.
 
-***
+## Get it Running
 
-### Get it Running 🚀
+Follow these steps to run the application locally.
 
-Want to run it locally? Just follow these steps.
+### Prerequisites
+*   Node.js & npm
+*   Python 3.9+ & pip
+*   A MongoDB Atlas account (or a local MongoDB instance)
+*   Git
 
-**Prerequisites:**
-* Node.js & npm
-* Python 3.9+ & pip
-* A MongoDB Atlas account
-* Git
+### Backend Setup
 
-**Installation:**
-
-1.  **Clone the repo:**
-    ```sh
-    git clone [https://github.com/your-username/post-quantum-secure-chat-app.git](https://github.com/your-username/post-quantum-secure-chat-app.git)
-    cd post-quantum-secure-chat-app
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/klath123/codeofhonour.git
+    cd codeofhonour
     ```
 
-2.  **Set up the backend:**
-    ```sh
+2.  **Navigate to the backend directory and install dependencies:**
+    ```bash
     cd backend
     pip install -r requirements.txt
-    # Create a .env file for your MongoDB URI, JWT secret, etc.
-    uvicorn main:app --reload
     ```
 
-3.  **Set up the frontend:**
-    ```sh
+3.  **Create a `.env` file** in the `backend` directory and add your configuration. See `src/config.py` for all required variables.
+    ```env
+    # Example .env file
+    DATABASE_URL=mongodb+srv://<user>:<password>@cluster.mongodb.net/
+    SECRET_KEY=your_super_secret_jwt_key
+    ALGORITHM=HS256
+    ACCESS_TOKEN_EXPIRE_MINUTES=10080 # 7 days
+    
+    # WebAuthn Settings
+    RP_ID=localhost
+    RP_NAME=CodeOfHonour
+    FRONTEND_ORIGIN=https://localhost:5173
+    ```
+
+4.  **Run the backend server:**
+    ```bash
+    uvicorn src:app --reload --ssl-keyfile localhost-key.pem --ssl-certfile localhost.pem
+    ```
+    The server will be running on `https://localhost:8000`.
+
+### Frontend Setup
+
+1.  **Navigate to the frontend directory and install dependencies:**
+    ```bash
     cd ../frontend
     npm install
-    npm start
     ```
-Now, just open your browser to `http://localhost:3000` to start chatting securely!
+
+2.  **Run the frontend development server:**
+    ```bash
+    npm run dev
+    ```
+
+3.  Open your browser and navigate to **`https://localhost:5173`** to use the application.
